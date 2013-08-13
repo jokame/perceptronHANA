@@ -1,65 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<UDE:Procedure xmlns:UDE="http://www.sap.com/ndb/SQLCoreModelUDE.ecore" xmlns:DataTypes="http://www.sap.com/ndb/SQLCoreModelDataTypes.ecore" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="testIMECA" schemaVersion="2" procedureType="procedure" runWithInvokerPrivileges="true" language="SQLSCRIPT" accessMode="ReadWrite">
-<descriptions defaultDescription="testIMECA"/>
-<metadata changedAt ="2013-08-13 12:35:31.546" createdAt="2013-08-13 11:34:03.135"/>
-<origin/>
-<schema id="_SYS_BIC"/>
-<definition>   
-BEGIN
-
-	DECLARE w1 FLOAT;
-	DECLARE w2 FLOAT;
-	DECLARE w3 FLOAT;
-	DECLARE w4 FLOAT;
-	DECLARE w5 FLOAT;
-	DECLARE w6 FLOAT;
-	DECLARE b FLOAT;
-	
-	DECLARE resp FLOAT;
-	
-	SELECT &quot;W1&quot;, &quot;W2&quot;, &quot;W3&quot;, &quot;W4&quot;, &quot;W5&quot;, &quot;W6&quot;, &quot;B&quot; INTO w1, w2, w3, w4, w5, w6, b FROM CARLOS.PARAM;
-	
-	resp := (w1*:x1) + (w2*:x2) + (w3*:x3) + (w4*:x4) + (w5*:x5) + (w6*:x6);
-	
-	IF resp &gt; b THEN
-		c := 1;
-	ELSE
-		c := 0;
-	END IF;
-
-END;</definition>
-<defaultSchema schemaName="SYSTEM"/>
-<parameters id="z" paramType="IN">
-  <type xsi:type="DataTypes:IntegerSQLDataType" id="INTEGER"/>
-</parameters>
-<parameters id="x1" paramType="IN">
-  <type xsi:type="DataTypes:IntegerSQLDataType" id="INTEGER"/>
-</parameters>
-<parameters id="x2" paramType="IN">
-  <type xsi:type="DataTypes:IntegerSQLDataType" id="INTEGER"/>
-</parameters>
-<parameters id="x3" paramType="IN">
-  <type xsi:type="DataTypes:IntegerSQLDataType" id="INTEGER"/>
-</parameters>
-<parameters id="x4" paramType="IN">
-  <type xsi:type="DataTypes:IntegerSQLDataType" id="INTEGER"/>
-</parameters>
-<parameters id="x5" paramType="IN">
-  <type xsi:type="DataTypes:IntegerSQLDataType" id="INTEGER"/>
-</parameters>
-<parameters id="x6" paramType="IN">
-  <type xsi:type="DataTypes:IntegerSQLDataType" id="INTEGER"/>
-</parameters>
-<parameters id="c" paramType="OUT">
-  <type xsi:type="DataTypes:IntegerSQLDataType" id="INTEGER"/>
-</parameters>
-<localTableType>/*
-You can create new table types and use them as input and output parameters in a procedure.
-The table types must be defined using SQL syntax, for example:
-CREATE TYPE &lt;Type Name&gt; AS TABLE (&lt;Field Name1&gt; &lt;Field Type1&gt;, &lt;Field Name2&gt; &lt;Field Type2&gt;,...);
-*/
-</localTableType>
-<header>/*
+/*
 Simple Perceptron. Simple perceptron in HANA.
 Copyright (C) 2013  Carlos Méndez.
 
@@ -74,7 +13,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 CREATE PROCEDURE testIMECA (
@@ -89,5 +28,27 @@ CREATE PROCEDURE testIMECA (
 ) 
 	LANGUAGE SQLSCRIPT
 	SQL SECURITY INVOKER 
-	AS</header>
-</UDE:Procedure>
+	AS  
+BEGIN
+
+	DECLARE w1 FLOAT;
+	DECLARE w2 FLOAT;
+	DECLARE w3 FLOAT;
+	DECLARE w4 FLOAT;
+	DECLARE w5 FLOAT;
+	DECLARE w6 FLOAT;
+	DECLARE b FLOAT;
+	
+	DECLARE resp FLOAT;
+	
+	SELECT "W1", "W2", "W3", "W4", "W5", "W6", "B" INTO w1, w2, w3, w4, w5, w6, b FROM CARLOS.PARAM;
+	
+	resp := (w1*:x1) + (w2*:x2) + (w3*:x3) + (w4*:x4) + (w5*:x5) + (w6*:x6);
+	
+	IF resp > b THEN
+		c := 1;
+	ELSE
+		c := 0;
+	END IF;
+
+END;
