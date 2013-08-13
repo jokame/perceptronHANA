@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<UDE:Procedure xmlns:UDE="http://www.sap.com/ndb/SQLCoreModelUDE.ecore" xmlns:DataTypes="http://www.sap.com/ndb/SQLCoreModelDataTypes.ecore" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="trainIMECA" schemaVersion="2" procedureType="procedure" runWithInvokerPrivileges="true" language="SQLSCRIPT" accessMode="ReadWrite">
+<descriptions defaultDescription="trainIMECA"/>
+<metadata changedAt ="2013-08-13 12:35:27.888" createdAt="2013-08-13 11:15:34.385"/>
+<origin/>
+<schema id="_SYS_BIC"/>
+<definition>                      
+BEGIN
+
+	DECLARE CURSOR train FOR 
+		SELECT * FROM CARLOS.TRAIN;
+	
+	DECLARE des INTEGER;
+	DECLARE resp INTEGER;
+	
+	DECLARE x1 INTEGER;
+	DECLARE x2 INTEGER;
+	DECLARE x3 INTEGER;
+	DECLARE x4 INTEGER;
+	DECLARE x5 INTEGER;
+	DECLARE x6 INTEGER;
+	
+	DECLARE err FLOAT;
+	DECLARE w1 FLOAT;
+	DECLARE w2 FLOAT;
+	DECLARE w3 FLOAT;
+	DECLARE w4 FLOAT;
+	DECLARE w5 FLOAT;
+	DECLARE w6 FLOAT;
+	DECLARE b FLOAT;
+	
+	DECLARE ww1 FLOAT;
+	DECLARE ww2 FLOAT;
+	DECLARE ww3 FLOAT;
+	DECLARE ww4 FLOAT;
+	DECLARE ww5 FLOAT;
+	DECLARE ww6 FLOAT;
+	DECLARE bb FLOAT;
+	DECLARE dd FLOAT;
+	
+	DECLARE p INTEGER;
+	DECLARE pp INTEGER;
+	DECLARE f INTEGER := 0;
+	
+	SELECT RAND() INTO w1 FROM DUMMY;
+	SELECT RAND() INTO w2 FROM DUMMY;
+	SELECT RAND() INTO w3 FROM DUMMY;
+	SELECT RAND() INTO w4 FROM DUMMY;
+	SELECT RAND() INTO w5 FROM DUMMY;
+	SELECT RAND() INTO w6 FROM DUMMY;
+	SELECT RAND() INTO b FROM DUMMY;
+	
+	w1 := (w1*2) - 1;
+	w2 := (w2*2) - 1;
+	w3 := (w3*2) - 1;
+	w4 := (w4*2) - 1;
+	w5 := (w5*2) - 1;
+	w6 := (w6*2) - 1;
+	b := (b*2) - 1;
+	
+	SELECT COUNT (*) INTO p FROM CARLOS.W;
+	
+	IF p &gt; 0 THEN
+		DELETE FROM CARLOS.W;
+	END IF;
+	
+	FOR p IN 1 .. :iter DO
+	
+		FOR t as train DO
+			
+			des := t.D;
+			x1 := t.X1;
+			x2 := t.X2;
+			x3 := t.X3;
+			x4 := t.X4;
+			x5 := t.X5;
+			x6 := t.X6;
+			
+			resp := (x1*w1) + (x2*w2) + (x3*w3) + (x4*w4) + (x5*w5) + (x6*w6);
+			
+			IF resp &gt; b THEN
+				resp := 1;
+			ELSE
+				resp := 0;
+			END IF;
+			
+			err := (des - resp);
+			
+			b := b - err;
+			w1 := w1 + (:etha*err*x1);
+			w2 := w2 + (:etha*err*x2);
+			w3 := w3 + (:etha*err*x3);
+			w4 := w4 + (:etha*err*x4);
+			w5 := w5 + (:etha*err*x5);
+			w6 := w6 + (:etha*err*x6);
+			
+		END FOR;
+		
+		SELECT &quot;W1&quot;, &quot;W2&quot;, &quot;W3&quot;, &quot;W4&quot;, &quot;W5&quot;, &quot;W6&quot;, &quot;B&quot; INTO ww1, ww2, ww3, ww4, ww5, ww6, bb FROM CARLOS.PARAM;
+		
+		ww1 := POWER (ww1 - w1, 2);
+		ww2 := POWER (ww2 - w2, 2);
+		ww3 := POWER (ww3 - w3, 2);
+		ww4 := POWER (ww4 - w4, 2);
+		ww5 := POWER (ww5 - w5, 2);
+		ww6 := POWER (ww6 - w6, 2);
+		bb := POWER (bb - b, 2);
+		
+		dd := 	POWER((ww1 + ww2 + ww3 + ww4 + ww5 + ww6 + bb), 0.5);
+		
+		INSERT INTO CARLOS.W VALUES(p, :w1, :w2, :w3, :w4, :w5, :w6, :b);
+		UPSERT CARLOS.PARAM VALUES(:w1, :w2, :w3, :w4, :w5, :w6, :b);
+		
+		IF dd &lt; :tol THEN
+			BREAK;
+		END IF;
+			
+	END FOR;
+	
+END;</definition>
+<defaultSchema schemaName="SYSTEM"/>
+<parameters id="iter" paramType="IN">
+  <type xsi:type="DataTypes:IntegerSQLDataType" id="INTEGER"/>
+</parameters>
+<parameters id="tol" paramType="IN">
+  <type xsi:type="DataTypes:IntegerSQLDataType" id="FLOAT"/>
+</parameters>
+<parameters id="etha" paramType="IN">
+  <type xsi:type="DataTypes:IntegerSQLDataType" id="FLOAT"/>
+</parameters>
+<localTableType>/*
+You can create new table types and use them as input and output parameters in a procedure.
+The table types must be defined using SQL syntax, for example:
+CREATE TYPE &lt;Type Name&gt; AS TABLE (&lt;Field Name1&gt; &lt;Field Type1&gt;, &lt;Field Name2&gt; &lt;Field Type2&gt;,...);
+*/
+</localTableType>
+<header>/*
+Simple Perceptron. Simple perceptron in HANA.
+Copyright (C) 2013  Carlos Méndez.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+*/
+
+CREATE PROCEDURE trainIMECA (
+	IN iter INTEGER,
+	IN tol FLOAT,
+	IN etha FLOAT
+) 
+	LANGUAGE SQLSCRIPT
+	SQL SECURITY INVOKER 
+	AS</header>
+</UDE:Procedure>
