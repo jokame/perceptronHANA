@@ -1,10 +1,29 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<UDE:Procedure xmlns:UDE="http://www.sap.com/ndb/SQLCoreModelUDE.ecore" xmlns:DataTypes="http://www.sap.com/ndb/SQLCoreModelDataTypes.ecore" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="trainIMECA" schemaVersion="2" procedureType="procedure" runWithInvokerPrivileges="true" language="SQLSCRIPT" accessMode="ReadWrite">
-<descriptions defaultDescription="trainIMECA"/>
-<metadata changedAt ="2013-08-13 12:35:27.888" createdAt="2013-08-13 11:15:34.385"/>
-<origin/>
-<schema id="_SYS_BIC"/>
-<definition>                      
+/*
+Simple Perceptron. Simple perceptron in HANA.
+Copyright (C) 2013  Carlos Méndez.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+CREATE PROCEDURE trainIMECA (
+	IN iter INTEGER,
+	IN tol FLOAT,
+	IN etha FLOAT
+) 
+	LANGUAGE SQLSCRIPT
+	SQL SECURITY INVOKER 
+	AS                     
 BEGIN
 
 	DECLARE CURSOR train FOR 
@@ -60,7 +79,7 @@ BEGIN
 	
 	SELECT COUNT (*) INTO p FROM CARLOS.W;
 	
-	IF p &gt; 0 THEN
+	IF p > 0 THEN
 		DELETE FROM CARLOS.W;
 	END IF;
 	
@@ -78,7 +97,7 @@ BEGIN
 			
 			resp := (x1*w1) + (x2*w2) + (x3*w3) + (x4*w4) + (x5*w5) + (x6*w6);
 			
-			IF resp &gt; b THEN
+			IF resp > b THEN
 				resp := 1;
 			ELSE
 				resp := 0;
@@ -96,7 +115,7 @@ BEGIN
 			
 		END FOR;
 		
-		SELECT &quot;W1&quot;, &quot;W2&quot;, &quot;W3&quot;, &quot;W4&quot;, &quot;W5&quot;, &quot;W6&quot;, &quot;B&quot; INTO ww1, ww2, ww3, ww4, ww5, ww6, bb FROM CARLOS.PARAM;
+		SELECT "W1", "W2", "W3", "W4", "W5", "W6", "B" INTO ww1, ww2, ww3, ww4, ww5, ww6, bb FROM CARLOS.PARAM;
 		
 		ww1 := POWER (ww1 - w1, 2);
 		ww2 := POWER (ww2 - w2, 2);
@@ -111,53 +130,10 @@ BEGIN
 		INSERT INTO CARLOS.W VALUES(p, :w1, :w2, :w3, :w4, :w5, :w6, :b);
 		UPSERT CARLOS.PARAM VALUES(:w1, :w2, :w3, :w4, :w5, :w6, :b);
 		
-		IF dd &lt; :tol THEN
+		IF dd < :tol THEN
 			BREAK;
 		END IF;
 			
 	END FOR;
 	
-END;</definition>
-<defaultSchema schemaName="SYSTEM"/>
-<parameters id="iter" paramType="IN">
-  <type xsi:type="DataTypes:IntegerSQLDataType" id="INTEGER"/>
-</parameters>
-<parameters id="tol" paramType="IN">
-  <type xsi:type="DataTypes:IntegerSQLDataType" id="FLOAT"/>
-</parameters>
-<parameters id="etha" paramType="IN">
-  <type xsi:type="DataTypes:IntegerSQLDataType" id="FLOAT"/>
-</parameters>
-<localTableType>/*
-You can create new table types and use them as input and output parameters in a procedure.
-The table types must be defined using SQL syntax, for example:
-CREATE TYPE &lt;Type Name&gt; AS TABLE (&lt;Field Name1&gt; &lt;Field Type1&gt;, &lt;Field Name2&gt; &lt;Field Type2&gt;,...);
-*/
-</localTableType>
-<header>/*
-Simple Perceptron. Simple perceptron in HANA.
-Copyright (C) 2013  Carlos Méndez.
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
-*/
-
-CREATE PROCEDURE trainIMECA (
-	IN iter INTEGER,
-	IN tol FLOAT,
-	IN etha FLOAT
-) 
-	LANGUAGE SQLSCRIPT
-	SQL SECURITY INVOKER 
-	AS</header>
-</UDE:Procedure>
+END;
